@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo Simples - Cardify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #FF9900;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #e88900;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .product-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: #f5f5f5;
+        }
+        
+        .product-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #111;
+        }
+        
+        .product-rating {
+            color: #FF9900;
+            margin-bottom: 15px;
+        }
+        
+        .product-price {
+            font-size: 32px;
+            font-weight: bold;
+            color: #B12704;
+            margin-bottom: 20px;
+        }
+        
+        .product-features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        
+        .product-features li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .buy-button {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: #FF9900;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+        
+        .buy-button:hover {
+            background: #e88900;
+        }
+        
+        .disclosure {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 15px;
+            font-style: italic;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .error {
+            background: #fee;
+            border: 2px solid #fcc;
+            color: #c33;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎴 Cardify - Demo</h1>
+        
+        <div class="search-box">
+            <div class="form-group">
+                <label for="asin">ASIN do Produto:</label>
+                <input 
+                    type="text" 
+                    id="asin" 
+                    placeholder="Ex: B08N5WRWNW"
+                    maxlength="10"
+                />
+            </div>
+            
+            <div class="form-group">
+                <label for="marketplace">Marketplace:</label>
+                <select id="marketplace">
+                    <option value="us">🇺🇸 Estados Unidos</option>
+                    <option value="br">🇧🇷 Brasil</option>
+                    <option value="uk">🇬🇧 Reino Unido</option>
+                    <option value="ca">🇨🇦 Canadá</option>
+                    <option value="de">🇩🇪 Alemanha</option>
+                </select>
+            </div>
+            
+            <button onclick="buscarProduto()" id="searchBtn">
+                🔍 Buscar Produto
+            </button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function buscarProduto() {
+            const asin = document.getElementById('asin').value.trim().toUpperCase();
+            const marketplace = document.getElementById('marketplace').value;
+            const resultDiv = document.getElementById('result');
+            const searchBtn = document.getElementById('searchBtn');
+            
+            if (!asin) {
+                alert('Por favor, digite um ASIN');
+                return;
+            }
+            
+            // Mostrar loading
+            searchBtn.disabled = true;
+            resultDiv.innerHTML = '<div class="loading">⏳ Buscando produto...</div>';
+            
+            try {
+                // Chamar API (ajuste a URL se necessário)
+                const response = await fetch(
+                    `http://localhost:3333/api/card?asin=${asin}&marketplace=${marketplace}`
+                );
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erro ao buscar produto');
+                }
+                
+                const product = await response.json();
+                
+                // Renderizar card
+                resultDiv.innerHTML = `
+                    <div class="product-card">
+                        ${product.image?.large ? 
+                            `<img src="${product.image.large}" alt="${product.title}" class="product-image">` 
+                            : ''
+                        }
+                        
+                        <h2 class="product-title">${product.title}</h2>
+                        
+                        ${product.rating?.stars ? 
+                            `<div class="product-rating">
+                                ${'⭐'.repeat(Math.round(product.rating.stars))} 
+                                ${product.rating.stars} 
+                                ${product.rating.count ? `(${product.rating.count} avaliações)` : ''}
+                            </div>`
+                            : ''
+                        }
+                        
+                        ${product.price?.display ? 
+                            `<div class="product-price">${product.price.display}</div>` 
+                            : '<div class="product-price">Ver preço na Amazon</div>'
+                        }
+                        
+                        ${product.features?.length ? 
+                            `<ul class="product-features">
+                                ${product.features.slice(0, 5).map(f => `<li>✓ ${f}</li>`).join('')}
+                            </ul>`
+                            : ''
+                        }
+                        
+                        <a href="${product.affiliateUrl}" 
+                           target="_blank" 
+                           rel="noopener noreferrer sponsored"
+                           class="buy-button">
+                            🛒 Comprar na Amazon
+                        </a>
+                        
+                        <p class="disclosure">
+                            As an Amazon Associate I earn from qualifying purchases.
+                        </p>
+                        
+                        ${product.fromCache ? 
+                            '<p style="text-align:center; color: #666; font-size: 12px; margin-top: 10px;">⚡ Resultado em cache</p>' 
+                            : ''
+                        }
+                    </div>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Erro:</strong> ${error.message}
+                    </div>
+                `;
+            } finally {
+                searchBtn.disabled = false;
+            }
+        }
+        
+        // Buscar ao pressionar Enter
+        document.getElementById('asin').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                buscarProduto();
+            }
+        });
+        
+        // Exemplo pré-carregado (opcional)
+        // window.onload = () => {
+        //     document.getElementById('asin').value = 'B08N5WRWNW';
+        //     buscarProduto();
+        // };
+    </script>
+</body>
+</html>
