@@ -38,9 +38,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Inicializar servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  console.log(`📡 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔑 Associate Tag: ${process.env.DEFAULT_ASSOCIATE_TAG || 'não configurado'}`);
-});
+// Inicializar servidor (apenas em desenvolvimento local)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+    console.log(`📡 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔑 Associate Tag: ${process.env.DEFAULT_ASSOCIATE_TAG || 'não configurado'}`);
+  });
+}
+
+// Exportar app para Vercel serverless
+export default app;

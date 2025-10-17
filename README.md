@@ -54,6 +54,26 @@ npm run dev
 O backend estará em `http://localhost:3333`  
 O frontend estará em `http://localhost:5173`
 
+## 🌐 Deploy em Produção
+
+### Deploy no Vercel (Recomendado)
+
+O projeto está pronto para deploy no Vercel com um clique:
+
+```bash
+# Via CLI
+npm install -g vercel
+vercel
+```
+
+Ou via GitHub:
+1. Faça push do código para GitHub
+2. Importe no [Vercel](https://vercel.com)
+3. Configure as variáveis de ambiente
+4. Deploy automático!
+
+📖 **Guia completo:** [DEPLOY_RAPIDO.md](./DEPLOY_RAPIDO.md)
+
 ## 📖 Como Usar
 
 1. Acesse a interface web
